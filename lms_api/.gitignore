@@ -1,0 +1,7 @@
+*.pyc
+__pycache__/
+db.sqlite3
+
+# Ignore specific files
+lms_api/db.sqlite3
+lms_api/lms_api/__pycache__/urls.cpython-312.pyc
