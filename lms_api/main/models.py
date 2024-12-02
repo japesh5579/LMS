@@ -55,6 +55,8 @@ class Course(models.Model):
     def tech_list(self):
         return self.techs.split(',')
 
+    
+
 # Chapter Model
 class Chapter(models.Model):
     course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='course_chapters')

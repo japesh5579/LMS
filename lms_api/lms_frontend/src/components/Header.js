@@ -8,11 +8,15 @@ function Header() {
       <nav className="navbar navbar-expand-lg navbar-dark bg-dark  ">
           <div className="container">
             
-              <Link className="navbar-brand" to="/"><img 
+              <Link className="navbar-brand" to="/">
+              <img 
                         src={logo} 
                         alt="KnowledgeNest Logo" 
-                        style={{ height: '40px', marginRight: '10px' }} // Adjust styles as needed
-                    />KnowledgeNest</Link>
+                        style={{ height: "50px", width: "50px", marginRight: "10px", borderRadius: "50%" }}
+                    />
+                    <span style={{ fontSize: "1.5rem", color: "#fff" }}>
+                        TheKnowledgeNest
+                    </span></Link>
               <button className="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
               <span style={{ fontSize: "1.5rem", fontWeight: "bold", color: "#fff" }}></span>
               </button>

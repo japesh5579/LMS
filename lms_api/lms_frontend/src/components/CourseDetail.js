@@ -146,9 +146,10 @@ function CourseDetail() {
               Enroll in this Course
             </button>
           ) : (
-            <Link to="/login" className="btn btn-warning">
-              Log in to Enroll
-            </Link>
+            <Link to="/user-login" className="btn btn-warning">
+  Log in to Enroll
+</Link>
+
           )}
         </div>
       </div>

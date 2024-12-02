@@ -67,11 +67,27 @@ function TeacherChangePassword() {
                     <TeacherSidebar />
                 </aside>
                 <section className='col-md-9'>
-                    <div className='card'>
-                        <h5 className='card-header'>Change Password</h5>
-                        <div className='card-body'>
+                    <div className='card'
+                    style={{
+                        backgroundColor: '#f9f9f9',
+                        borderRadius: '8px',
+                        boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
+                        overflow: 'hidden'
+                    }}>
+                        <h5 className='card-header'
+                        style={{
+                            backgroundColor: '#343a40',
+                            color: '#fff',
+                            fontSize: '1.25rem',
+                            fontWeight: 'bold',
+                            padding: '15px'
+                        }}>Change Password</h5>
+                        <div className='card-body' style={{ padding: '20px' }}>
                             <div className="mb-3 row">
-                                <label htmlFor="inputPassword" className="col-sm-2 col-form-label">New Password</label>
+                                <label htmlFor="inputPassword" 
+                                className="col-sm-2 col-form-label"
+                                style={{ fontSize: '1rem', fontWeight: '500' }}
+                                >New Password</label>
                                 <div className="col-sm-10">
                                     <input 
                                         type="password" // Change to password type
@@ -80,11 +96,29 @@ function TeacherChangePassword() {
                                         name="password" 
                                         className="form-control" 
                                         id="inputPassword" 
+                                        style={{
+                                            padding: '10px',
+                                            fontSize: '1rem',
+                                            borderRadius: '5px',
+                                            border: '1px solid #ced4da'
+                                        }}
                                     />
                                 </div>
                             </div>
                             <hr />
-                            <button onClick={submitForm} className='btn btn-primary'>Update</button>
+                            <button onClick={submitForm} 
+                            className='btn btn-primary'
+                            style={{
+                                padding: '10px 20px',
+                                fontSize: '1rem',
+                                fontWeight: 'bold',
+                                backgroundColor: '#007bff',
+                                border: 'none',
+                                borderRadius: '5px',
+                                transition: 'background-color 0.3s ease'
+                            }}
+                            onMouseOver={(e) => e.target.style.backgroundColor = '#0056b3'}
+                            onMouseOut={(e) => e.target.style.backgroundColor = '#007bff'}>Update</button>
                         </div>
                     </div>
                 </section>

@@ -16,7 +16,9 @@ function TeacherProfileSetting(){
         skills: '',
         profile_img:'',
         p_img:'',
-        status: '', // Tracks form submission status
+        'verify_status': '', // Tracks form submission status
+
+
     });
     const teacherId=localStorage.getItem('teacherId');
 
@@ -33,6 +35,7 @@ function TeacherProfileSetting(){
                 skills: res.data.skills,
                 profile_img:res.data.profile_img,
                 p_img:'',
+                verify_status:''
             })
           })
           .catch((error) => {
@@ -64,6 +67,7 @@ function TeacherProfileSetting(){
         formData.append('qualification', teacherData.qualification);
         formData.append('mobile_no', teacherData.mobile_no);
         formData.append('skills', teacherData.skills);
+        formData.append('verify_status', teacherData.verify_status);
         
         // Append profile image if exists
         if (teacherData.p_img) {
@@ -115,19 +119,36 @@ function TeacherProfileSetting(){
                     <TeacherSidebar/>
                 </aside>
                 <section className='col-md-9'>
-                    <div className='card'>
-                        <h5 className='card-header'>Profile Setting</h5>
-                        <div className='card-body'>
+                    <div className='card'
+                    style={{
+                        backgroundColor: '#fff',
+                        borderRadius: '8px',
+                        boxShadow: '0 2px 10px rgba(0, 0, 0, 0.1)',
+                        overflow: 'hidden'
+                    }}>
+                        <h5 className='card-header'
+                        style={{
+                            backgroundColor: '#343a40',
+                            color: '#fff',
+                            fontSize: '1.25rem',
+                            fontWeight: 'bold',
+                            padding: '15px'
+                        }}>Profile Setting</h5>
+                        <div className='card-body' style={{ padding: '20px' }}>
                             <div className="mb-3 row">
                                 <label for="staticEmail" className="col-sm-2 col-form-label">Full Name</label>
                                 <div className="col-sm-10">
-                                <input type="text" value={teacherData.full_name} name="full_name" onChange={handleChange} className="form-control" id="staticEmail" />
+                                <input type="text" value={teacherData.full_name} name="full_name" onChange={handleChange} 
+                                className="form-control" id="staticEmail"
+                                style={{ padding: '10px', fontSize: '1rem' }} />
                                 </div>
                             </div>
                             <div className="mb-3 row">
                                 <label for="staticEmail" className="col-sm-2 col-form-label">Email</label>
                                 <div className="col-sm-10">
-                                <input type="text" value={teacherData.email} name="email" onChange={handleChange}className="form-control" id="staticEmail" />
+                                <input type="text" value={teacherData.email} name="email" onChange={handleChange}
+                                className="form-control" id="staticEmail"
+                                style={{ padding: '10px', fontSize: '1rem' }} />
                                 </div>
                             </div>
                             <div className="mb-3 row">
@@ -139,9 +160,15 @@ function TeacherProfileSetting(){
                                         name='p_img'
                                         className="form-control"
                                         id="video"
+                                        style={{ padding: '10px', fontSize: '1rem' }}
                                     />
                                     {teacherData.profile_img &&
-                                    <p className='mt-2'><img src={teacherData.profile_img} width="300" alt={teacherData.full_name}/></p>
+                                    <p className='mt-2'>
+                                        <img src={teacherData.profile_img} 
+                                        width="300" 
+                                        alt={teacherData.full_name}
+                                        style={{ borderRadius: '8px', marginTop: '10px' }}
+                                        /></p>
                                     }
                                 </div>
                             </div>
@@ -157,6 +184,7 @@ function TeacherProfileSetting(){
                                         className="form-control"
                                         id="inputInterests"
                                         rows="2"
+                                        style={{ padding: '10px', fontSize: '1rem' }}
                                     ></textarea>
                                     <div id="emailHelp" className="form-text">
                                         Php, Python, Javascript, etc
@@ -175,11 +203,20 @@ function TeacherProfileSetting(){
                                         className="form-control"
                                         id="inputInterests"
                                         rows="2"
+                                        style={{ padding: '10px', fontSize: '1rem' }}
                                     ></textarea>
                                 </div>
                             </div>
+                            <div className="mb-3 row">
+                                <label for="staticEmail" className="col-sm-2 col-form-label">Full Name</label>
+                                <div className="col-sm-10">
+                                <input type="text" value={teacherData.full_name} name="full_name" onChange={handleChange} 
+                                className="form-control" id="staticEmail"
+                                style={{ padding: '10px', fontSize: '1rem' }} />
+                                </div>
+                            </div>
                             <hr/>
-                            <button onClick={submitForm} className='btn btn-primary'>Update</button>
+                            <button onClick={submitForm} className='btn btn-primary'style={{ padding: '10px 20px', fontSize: '1rem', fontWeight: 'bold' }}>Update</button>
                         </div>
                     </div>
                 </section>

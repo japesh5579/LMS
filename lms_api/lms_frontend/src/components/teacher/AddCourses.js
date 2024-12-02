@@ -79,11 +79,21 @@ function AddCourses() {
                     <TeacherSidebar />
                 </aside>
                 <section className='col-md-9'>
-                    <div className='card'>
-                        <h5 className='card-header'>Add Course</h5>
+                    <div className='card' style={{
+                        backgroundColor: '#fff',
+                        boxShadow: '0 2px 10px rgba(0, 0, 0, 0.1)',
+                        borderRadius: '8px'
+                    }}>
+                        <h5 className='card-header' style={{
+                            backgroundColor: '#343a40',
+                            color: '#fff',
+                            fontSize: '1.2rem',
+                            fontWeight: 'bold',
+                            padding: '10px 15px'
+                        }}>Add Course</h5>
                         <div className='card-body'>
                             <div className="mb-3 row">
-                                <label htmlFor="category" className="col-sm-2 col-form-label">
+                                <label htmlFor="category" className="col-sm-2 col-form-label" style={{ fontWeight: 'bold' }}>
                                     Category
                                 </label>
                                 <div className="col-sm-10">
@@ -93,6 +103,11 @@ function AddCourses() {
                                         id="category"
                                         className="form-control"
                                         required
+                                        style={{
+                                            borderRadius: '5px',
+                                            borderColor: '#ddd',
+                                            padding: '8px'
+                                        }}
                                     >
                                         <option value="">Select Category</option>
                                         {categories.map((category, index) => (
@@ -104,19 +119,24 @@ function AddCourses() {
                                 </div>
                             </div>
                             <div className="mb-3 row">
-                                <label htmlFor="staticEmail" className="col-sm-2 col-form-label">Title</label>
+                                <label htmlFor="staticEmail" className="col-sm-2 col-form-label" style={{ fontWeight: 'bold' }}>Title</label>
                                 <div className="col-sm-10">
                                     <input
                                         type="text"
                                         onChange={handleChange}
                                         name='title'
                                         className="form-control"
-                                        id="staticEmail"
+                                        id="title"
+                                        style={{
+                                            borderRadius: '5px',
+                                            borderColor: '#ddd',
+                                            padding: '8px'
+                                        }}
                                     />
                                 </div>
                             </div>
                             <div className="mb-3 row">
-                                <label htmlFor="inputInterests" className="col-sm-2 col-form-label">
+                                <label htmlFor="inputInterests" className="col-sm-2 col-form-label" style={{ fontWeight: 'bold' }}>
                                     Description
                                 </label>
                                 <div className="col-sm-10">
@@ -124,25 +144,35 @@ function AddCourses() {
                                         className="form-control"
                                         onChange={handleChange}
                                         name='description'
-                                        id="inputInterests"
-                                        rows="2"
+                                        id="description"
+                                        rows="3"
+                                        style={{
+                                            borderRadius: '5px',
+                                            borderColor: '#ddd',
+                                            padding: '8px'
+                                        }}
                                     ></textarea>
                                 </div>
                             </div>
                             <div className="mb-3 row">
-                                <label htmlFor="video" className="col-sm-2 col-form-label">Featured Image</label>
+                                <label htmlFor="f_img" className="col-sm-2 col-form-label" style={{ fontWeight: 'bold' }}>Featured Image</label>
                                 <div className="col-sm-10">
                                     <input
                                         type="file"
                                         onChange={handleFileChange}
                                         name='f_img'
                                         className="form-control"
-                                        id="video"
+                                        id="f_img"
+                                        style={{
+                                            borderRadius: '5px',
+                                            borderColor: '#ddd',
+                                            padding: '8px'
+                                        }}
                                     />
                                 </div>
                             </div>
                             <div className="mb-3 row">
-                                <label htmlFor="inputInterests" className="col-sm-2 col-form-label">
+                                <label htmlFor="techs" className="col-sm-2 col-form-label" style={{ fontWeight: 'bold' }}>
                                     Technologies
                                 </label>
                                 <div className="col-sm-10">
@@ -151,13 +181,26 @@ function AddCourses() {
                                         onChange={handleChange}
                                         name='techs'
                                         placeholder='Php, Python, Javascript, HTML, CSS, etc.'
-                                        id="inputInterests"
+                                        id="techs"
                                         rows="2"
+                                        style={{
+                                            borderRadius: '5px',
+                                            borderColor: '#ddd',
+                                            padding: '8px'
+                                        }}
                                     ></textarea>
                                 </div>
                             </div>
                             <hr />
-                            <button type='button' onClick={formSubmit} className='btn btn-primary'>Submit</button>
+                            <button type='button' onClick={formSubmit} 
+                            className='btn btn-primary'
+                            style={{
+                                padding: '10px 20px',
+                                fontSize: '1rem',
+                                borderRadius: '5px',
+                                border: 'none'
+                            }}
+                            >Submit</button>
                         </div>
                     </div>
                 </section>

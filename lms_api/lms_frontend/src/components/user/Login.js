@@ -1,117 +1,204 @@
 import { useEffect, useState } from 'react';
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom'; // To handle redirect after login
+import { useNavigate } from 'react-router-dom';
 
 const baseUrl = 'http://127.0.0.1:8000/api/student-login/';
 
 function Login() {
-    const [studentLoginData, setstudentLoginData] = useState({
+    const [studentLoginData, setStudentLoginData] = useState({
         email: '',
         password: '',
     });
-    const [errorMsg, seterrorMsg] = useState('');
-    const navigate = useNavigate();  // Hook for redirection after successful login
+    const [errorMsg, setErrorMsg] = useState('');
+    const navigate = useNavigate();
 
-    // Handle form input changes
+    // Animation styles
+    const fadeInAnimation = {
+        animation: 'fadeIn 1s ease-in-out',
+    };
+
+    const errorStyle = {
+        animation: 'fadeIn 0.5s ease-in-out',
+        marginTop: '10px',
+        color: '#ff4d4f',
+        fontWeight: 'bold',
+        textAlign: 'center',
+    };
+
+    const containerStyle = {
+        display: 'flex',
+        minHeight: '100vh',
+        width: '100%',
+        overflow: 'hidden',
+    };
+
+    const imageSectionStyle = {
+        flex: 1,
+        backgroundImage: `url('https://images.unsplash.com/photo-1593642634443-44adaa06623a?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=MnwzNjUyOXwwfDF8c2VhcmNofDF8fGVkdWNhdGlvbnxlbnwwfHx8fDE2OTc2ODc0Mjg&ixlib=rb-1.2.1&q=80&w=1920')`,
+        backgroundSize: 'cover',
+        backgroundRepeat: 'no-repeat',
+        backgroundPosition: 'center',
+    };
+
+    const formSectionStyle = {
+        flex: 1,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: '#f4f4f4',
+        padding: '50px',
+    };
+
+    const cardStyle = {
+        backgroundColor: 'white',
+        borderRadius: '15px',
+        padding: '30px',
+        boxShadow: '0px 10px 20px rgba(0, 0, 0, 0.3)',
+        width: '100%',
+        maxWidth: '400px',
+    };
+
+    const titleStyle = {
+        fontSize: '1.4rem', // Reduced font size for "TheKnowledgeNest"
+        fontWeight: 'bold',
+        textAlign: 'center',
+        marginTop: '20px',  // Adjusted margin for spacing
+        marginBottom: '20px',
+        color: '#2c3e50',
+    };
+
+    const styles = `
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .btn-primary {
+            background-color: #007bff;
+            border-color: #007bff;
+            transition: transform 0.3s ease, background-color 0.3s ease;
+        }
+        .btn-primary:hover {
+            background-color: #0056b3;
+            transform: scale(1.05);
+        }
+    `;
+
+    useEffect(() => {
+        // Inject the keyframes into the document head
+        const styleSheet = document.createElement('style');
+        styleSheet.type = 'text/css';
+        styleSheet.innerText = styles;
+        document.head.appendChild(styleSheet);
+
+        // Set page title
+        document.title = 'Student Login';
+
+        // Check if the user is already logged in
+        const studentLoginStatus = localStorage.getItem('studentLoginStatus');
+        if (studentLoginStatus === 'true') {
+            navigate('/user-dashboard/');
+        }
+
+        return () => {
+            // Cleanup the injected style element on unmount
+            document.head.removeChild(styleSheet);
+        };
+    }, [navigate]);
+
     const handleChange = (event) => {
-        setstudentLoginData({
+        setStudentLoginData({
             ...studentLoginData,
             [event.target.name]: event.target.value,
         });
     };
 
-    // Submit the login form
     const submitForm = (event) => {
-        event.preventDefault(); // Prevent form default submission behavior
-    
-        // Basic validation to check if both fields are filled
+        event.preventDefault();
+
         if (!studentLoginData.email || !studentLoginData.password) {
-            seterrorMsg("Please enter both email and password.");
+            setErrorMsg('Please enter both email and password.');
             return;
         }
-    
+
         const studentFormData = {
             email: studentLoginData.email,
             password: studentLoginData.password,
         };
-    
-        // Axios POST request to backend API
+
         axios
             .post(baseUrl, studentFormData, {
                 headers: { 'Content-Type': 'application/json' },
             })
             .then((res) => {
-                console.log('Login Response:', res.data);  // Debugging the response
-                // Check if login is successful
                 if (res.data.bool === true) {
-                    localStorage.setItem('studentLoginStatus', 'true'); // Store login status
-                    localStorage.setItem('studentId', res.data.student_id); // Store student ID
-                    navigate('/user-dashboard/'); // Redirect to user dashboard
+                    localStorage.setItem('studentLoginStatus', 'true');
+                    localStorage.setItem('studentId', res.data.student_id);
+                    navigate('/user-dashboard/');
                 } else {
-                    seterrorMsg('Invalid Email or Password');  // Invalid credentials
+                    setErrorMsg('Invalid Email or Password');
                 }
             })
             .catch((error) => {
-                // Handle error response
                 if (error.response) {
-                    console.error('Error response:', error.response.data);
-                    seterrorMsg(error.response.data.error || 'Invalid Email or Password');
+                    setErrorMsg(error.response.data.error || 'Invalid Email or Password');
                 } else if (error.request) {
-                    console.error('Error request:', error.request);
-                    seterrorMsg('No response from server.');
+                    setErrorMsg('No response from server.');
                 } else {
-                    console.error('Error message:', error.message);
-                    seterrorMsg('Something went wrong. Please try again.');
+                    setErrorMsg('Something went wrong. Please try again.');
                 }
             });
     };
-    
-
-    useEffect(() => {
-        document.title = 'Student Login'; // Set page title
-
-        // Check if user is already logged in
-        const studentLoginStatus = localStorage.getItem('studentLoginStatus');
-        if (studentLoginStatus === 'true') {
-            navigate('/user-dashboard/');  // Redirect to user dashboard if logged in
-        }
-    }, [navigate]);
 
     return (
-        <div className="container mt-4">
-            <div className="row">
-                <div className="col-6 offset-3">
-                    <div className="card">
-                        <h5 className="card-header">User Login</h5>
-                        <div className="card-body">
-                            {/* Display error message if any */}
-                            {errorMsg && <p className='text-danger'>{errorMsg}</p>}
-
-                            <form onSubmit={submitForm}>
-                                <div className="mb-3">
-                                    <label htmlFor="exampleInputEmail1" className="form-label">Email</label>
-                                    <input
-                                        type="email"
-                                        value={studentLoginData.email}
-                                        name="email"
-                                        onChange={handleChange}
-                                        className="form-control"
-                                    />
-                                </div>
-                                <div className="mb-3">
-                                    <label htmlFor="exampleInputPassword1" className="form-label">Password</label>
-                                    <input
-                                        type="password"
-                                        value={studentLoginData.password}
-                                        name="password"
-                                        onChange={handleChange}
-                                        className="form-control"
-                                        id="exampleInputPassword1"
-                                    />
-                                </div>
-                                <button type="submit" className="btn btn-primary">Login</button>
-                            </form>
-                        </div>
+        <div style={containerStyle}>
+            <div style={imageSectionStyle}></div>
+            <div style={formSectionStyle}>
+                <div style={cardStyle} className="card" style={fadeInAnimation}>
+                    <div style={{ textAlign: 'center' }}>
+                        <img 
+                            src="gg.jpg" // Replace with your icon URL
+                            alt="Icon"
+                            style={{ width: '150px', marginBottom: '20px' , marginTop : ' 25px' }} // Adjust the icon size and spacing
+                        />
+                    </div>
+                    <h1 style={titleStyle}>LOGIN</h1>
+                    <div className="card-body">
+                        {errorMsg && <p style={errorStyle}>{errorMsg}</p>}
+                        <form onSubmit={submitForm}>
+                            <div className="mb-3">
+                                <label htmlFor="email" className="form-label">Email</label>
+                                <input
+                                    type="email"
+                                    value={studentLoginData.email}
+                                    name="email"
+                                    onChange={handleChange}
+                                    className="form-control"
+                                    id="email"
+                                    required
+                                />
+                            </div>
+                            <div className="mb-3">
+                                <label htmlFor="password" className="form-label">Password</label>
+                                <input
+                                    type="password"
+                                    value={studentLoginData.password}
+                                    name="password"
+                                    onChange={handleChange}
+                                    className="form-control"
+                                    id="password"
+                                    required
+                                />
+                            </div>
+                            <button type="submit" className="btn btn-primary w-100">
+                                Login
+                            </button>
+                        </form>
                     </div>
                 </div>
             </div>
