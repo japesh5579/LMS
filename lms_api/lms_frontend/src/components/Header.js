@@ -26,7 +26,7 @@ function Header() {
                             Teacher
                         </a>
                         <ul className='dropdown-menu' aria-labelledby='navbarDropdown'>
-                            {teacherLoginStatus!='true' && 
+                            {teacherLoginStatus!=='true' && 
                                 <>
                                 <li><Link className='dropdown-item' to='/teacher-login'>login</Link></li>
                                 <li><Link className='dropdown-item' to='/teacher-register'>Register</Link></li>

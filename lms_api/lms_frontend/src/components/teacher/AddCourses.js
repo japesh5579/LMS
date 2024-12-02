@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom';
+//import { Link } from 'react-router-dom';
 import axios from 'axios';
 import TeacherSidebar from './TeacherSidebar';
 import { useState, useEffect } from 'react';
@@ -45,6 +45,7 @@ function AddCourses() {
     };
 
     const formSubmit = () => {
+        //const teacherId=localStorage.getItem('teacherId');
         const _formData = new FormData();
         _formData.append('category', courseData.category);
         _formData.append('teacher', localStorage.getItem('teacherId')); // Replace with dynamic teacher ID
@@ -53,6 +54,7 @@ function AddCourses() {
         _formData.append('featured_img', courseData.f_img, courseData.f_img.name);
         _formData.append('techs', courseData.techs);
 
+        console.log([..._formData.entries()]) ;
         try {
             axios.post(baseUrl+'/course/', _formData, {
                 headers: {
@@ -60,11 +62,14 @@ function AddCourses() {
                 }
             })
             .then((res) => {
+                console.log("Course added successfully:", res.data);
                 window.location.href = '/add-courses';
             });
         } catch (error) {
             console.log(error);
         }
+        console.log([..._formData.entries()]);
+
     };
 
     return (
@@ -161,4 +166,4 @@ function AddCourses() {
     );
 }
 
-export default AddCourses;
+export default AddCourses; 

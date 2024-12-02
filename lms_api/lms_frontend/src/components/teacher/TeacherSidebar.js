@@ -10,7 +10,7 @@ function TeacherSidebar(){
                     <Link to="/teacher-users" className='list-group-item list-group-item-action'>My User</Link>
                     <Link to="/teacher-profile-setting" className='list-group-item list-group-item-action'>Profile</Link>
                     <Link to="/teacher-change-password" className='list-group-item list-group-item-action'>Change Password</Link>
-                    <Link to="/teacher-login" className='list-group-item list-group-item-action text-danger'>logout</Link>
+                    <Link to="/teacher-logout" className='list-group-item list-group-item-action text-danger'>logout</Link>
                 </div>
         </div>
     );

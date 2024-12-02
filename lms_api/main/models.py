@@ -4,11 +4,13 @@ from django.core import serializers
 # Teacher Model
 class Teacher(models.Model):
     full_name = models.CharField(max_length=100)
-    email = models.CharField(max_length=100)
-    password = models.CharField(max_length=100)
+    email = models.CharField(max_length=100, unique=True)
+    password = models.CharField(max_length=100,blank=True,null=True)
     qualification = models.CharField(max_length=1200)
     mobile_no = models.CharField(max_length=20)
+    profile_img=models.ImageField(upload_to='teacher_imgs/',null=True)
     skills = models.TextField()
+    
 
     class Meta:
         verbose_name_plural = "1.Teachers"
@@ -70,7 +72,7 @@ class Chapter(models.Model):
 # Student Model
 class Student(models.Model):
     full_name = models.CharField(max_length=100)
-    email = models.CharField(max_length=100)
+    email = models.CharField(max_length=100, unique=True)
     password = models.CharField(max_length=100)
     username = models.CharField(max_length=1200)
     interests = models.TextField(blank=True)

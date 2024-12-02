@@ -1,36 +1,35 @@
-from django.contrib import admin
-from django.urls import path,include
+from django.urls import path
 from . import views
 
 urlpatterns = [
-    #teacher
-    path('teacher/', views.TeacherList.as_view()),
-    path('teacher/<int:pk>/', views.TeacherDetail.as_view()),
-    path('teacher-login/',views.teacher_login),
+    # Teacher
+    path('teacher/', views.TeacherList.as_view(), name='teacher-list'),
+    path('teacher/<int:pk>/', views.TeacherDetail.as_view(), name='teacher-detail'),
+    path('teacher/change-password/<int:teacher_id>/', views.teacher_change_password, name='teacher-change-password'),
+    path('teacher-login/', views.teacher_login, name='teacher-login'),
 
-    # category
-    path('category/', views.CategoryList.as_view()),
+    # Category
+    path('category/', views.CategoryList.as_view(), name='category-list'),
 
-    # course
-    path('course/', views.CourseList.as_view()),
+    # Course
+    path('course/', views.CourseList.as_view(), name='course-list'),
+    path('course/<int:pk>/', views.CourseDetailView.as_view(), name='course-detail'),
 
-    # course detail
-    path('course/<int:pk>', views.CourseDetailView.as_view()),
-
-    # chapter
-    path('chapter/', views.ChapterList.as_view()),
+    # Chapter
+    path('chapter/', views.ChapterList.as_view(), name='chapter-list'),
     path('chapter/<int:pk>/', views.ChapterDetailView.as_view()),
+    path('course-chapters/<int:course_id>/', views.CourseChapterList.as_view(), name='course-chapters'),
 
-    # specific course chapter
-    path('course-chapters/<int:course_id>', views.CourseChapterList.as_view()),
-    
+    # Teacher Courses
+    path('teacher-courses/<int:teacher_id>/', views.TeacherCourseList.as_view(), name='teacher-courses'),
+    path('teacher-course-detail/<int:pk>/', views.TeacherCourseDetail.as_view(), name='teacher-courses'),
 
-    # Teacher course
-    path('teacher-courses/<int:teacher_id>', views.TeacherCourseList.as_view()),
-    # Course Detail
-    path('teacher-course-detail/<int:pk>/', views.TeacherCourseDetail.as_view()),
 
-    #student
-     path('student/', views.StudentList.as_view()),
-     path('student-login/',views.student_login),
+    # Student
+    path('student/', views.StudentList.as_view(), name='student-list'),
+    path('student-login/', views.student_login, name='student-login'),
+    path('student-enroll-course/', views.StudentEnrollCourseList.as_view(), name='student-enroll-course'),
+
+    # Enrollment Status
+    path('fetch-enroll-status/<int:course_id>/<int:student_id>/', views.fetch_enroll_status, name='fetch-enroll-status'),
 ]

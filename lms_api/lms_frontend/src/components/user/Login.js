@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom'; // To handle redirect after login
 
 const baseUrl = 'http://127.0.0.1:8000/api/student-login/';
 
@@ -9,7 +10,9 @@ function Login() {
         password: '',
     });
     const [errorMsg, seterrorMsg] = useState('');
+    const navigate = useNavigate();  // Hook for redirection after successful login
 
+    // Handle form input changes
     const handleChange = (event) => {
         setstudentLoginData({
             ...studentLoginData,
@@ -17,45 +20,62 @@ function Login() {
         });
     };
 
+    // Submit the login form
     const submitForm = (event) => {
         event.preventDefault(); // Prevent form default submission behavior
+    
+        // Basic validation to check if both fields are filled
+        if (!studentLoginData.email || !studentLoginData.password) {
+            seterrorMsg("Please enter both email and password.");
+            return;
+        }
+    
         const studentFormData = {
             email: studentLoginData.email,
             password: studentLoginData.password,
         };
-
+    
+        // Axios POST request to backend API
         axios
             .post(baseUrl, studentFormData, {
                 headers: { 'Content-Type': 'application/json' },
             })
             .then((res) => {
                 console.log('Login Response:', res.data);  // Debugging the response
+                // Check if login is successful
                 if (res.data.bool === true) {
-                    localStorage.setItem('studentLoginStatus', true);
-                    localStorage.setItem('studentId', res.data.student_id);
-                    window.location.href = '/user-dashboard';
+                    localStorage.setItem('studentLoginStatus', 'true'); // Store login status
+                    localStorage.setItem('studentId', res.data.student_id); // Store student ID
+                    navigate('/user-dashboard/'); // Redirect to user dashboard
                 } else {
-                    seterrorMsg('Invalid Email or Password');
+                    seterrorMsg('Invalid Email or Password');  // Invalid credentials
                 }
             })
             .catch((error) => {
-                if (error.response && error.response.status === 400) {
+                // Handle error response
+                if (error.response) {
+                    console.error('Error response:', error.response.data);
                     seterrorMsg(error.response.data.error || 'Invalid Email or Password');
+                } else if (error.request) {
+                    console.error('Error request:', error.request);
+                    seterrorMsg('No response from server.');
                 } else {
+                    console.error('Error message:', error.message);
                     seterrorMsg('Something went wrong. Please try again.');
                 }
-                console.error('Error Response:', error.response ? error.response.data : error.message);
             });
     };
+    
 
     useEffect(() => {
-        document.title = 'Student Login';
+        document.title = 'Student Login'; // Set page title
 
+        // Check if user is already logged in
         const studentLoginStatus = localStorage.getItem('studentLoginStatus');
         if (studentLoginStatus === 'true') {
-            window.location.href = '/user-dashboard';
+            navigate('/user-dashboard/');  // Redirect to user dashboard if logged in
         }
-    }, []);
+    }, [navigate]);
 
     return (
         <div className="container mt-4">
@@ -64,6 +84,7 @@ function Login() {
                     <div className="card">
                         <h5 className="card-header">User Login</h5>
                         <div className="card-body">
+                            {/* Display error message if any */}
                             {errorMsg && <p className='text-danger'>{errorMsg}</p>}
 
                             <form onSubmit={submitForm}>

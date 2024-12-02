@@ -56,7 +56,7 @@ function EditCourse() {
         //END
 
 
-    }, []);
+    }, [course_id]);
 
     const handleChange = (event) => {
         setCourseData({

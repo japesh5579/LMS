@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
 const baseUrl = 'http://127.0.0.1:8000/api/teacher-login/';
 
@@ -9,7 +10,8 @@ function TeacherLogin() {
         password: '',
     });
 
-    const [errorMsg,seterrorMsg]=useState('');
+    const [errorMsg, setErrorMsg] = useState('');
+    const navigate = useNavigate();
 
     const handleChange = (event) => {
         setTeacherLoginData({
@@ -21,8 +23,8 @@ function TeacherLogin() {
     const submitForm = (event) => {
         event.preventDefault();
         const teacherFormData = {
-            email: teacherLoginData.email,
-            password: teacherLoginData.password,
+            "email": teacherLoginData.email,
+            "password": teacherLoginData.password,
         };
     
         axios
@@ -31,32 +33,30 @@ function TeacherLogin() {
             })
             .then((res) => {
                 if (res.data.bool === true) {
-                    localStorage.setItem('teacherLoginStatus', true);
+                    localStorage.setItem('teacherLoginStatus', 'true');
                     localStorage.setItem('teacherId', res.data.teacher_id);
-                    window.location.href = '/teacher-dashboard';
+                    navigate('/teacher-dashboard/');
                 } else {
-                    seterrorMsg('Invalid Email or Password');
+                    setErrorMsg('Invalid Email or Password');
                 }
             })
             .catch((error) => {
                 if (error.response && error.response.status === 400) {
-                    seterrorMsg(error.response.data.error || 'Invalid Email or Password');
+                    setErrorMsg(error.response.data.error || 'Invalid Email or Password');
                 } else {
-                    seterrorMsg('Something went wrong. Please try again.');
+                    setErrorMsg('Something went wrong. Please try again.');
                 }
                 console.error('Error Response:', error.response ? error.response.data : error.message);
             });
     };
-    
-
-     const teacherLoginStatus=localStorage.getItem('teacherLoginStatus');
-     if(teacherLoginStatus=='true'){
-        window.location.href = '/teacher-dashboard';
-     }
-
+    // Check if the teacher is already logged in and redirect them
     useEffect(() => {
+        const teacherLoginStatus = localStorage.getItem('teacherLoginStatus');
+        if (teacherLoginStatus === 'true') {
+            navigate('/teacher-dashboard/');
+        }
         document.title = 'Teacher Login';
-    }, []);
+    }, [navigate]);
 
     return (
         <div className="container mt-4">

@@ -1,60 +1,71 @@
-from django.shortcuts import render
-from django.http import JsonResponse, HttpResponse
+from django.shortcuts import get_object_or_404
+from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework import generics
-from rest_framework import permissions
-from .serializer import TeacherSerializer, CategorySerializer, CourseSerializer, ChapterSerializer, StudentSerializer
+from rest_framework import generics, permissions
+from rest_framework.exceptions import ValidationError
+from django.contrib.auth.hashers import make_password, check_password
+from .serializers import TeacherSerializer, CategorySerializer, CourseSerializer, ChapterSerializer, StudentSerializer, StudentCourseEnrollSerializer
 from . import models
 import json
 
+
+# Teacher List View
 class TeacherList(generics.ListCreateAPIView):
     queryset = models.Teacher.objects.all()
     serializer_class = TeacherSerializer
-    permission_classes = []  # Add permissions if needed
+    permission_classes = []
 
+
+# Teacher Detail View
 class TeacherDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = models.Teacher.objects.all()
     serializer_class = TeacherSerializer
-    permission_classes = []  # Add permissions if needed
+    permission_classes = []
 
-@csrf_exempt  # Consider using proper token-based authentication in production
+
+
+@csrf_exempt
 def teacher_login(request):
     if request.method == "POST":
         try:
-            data = json.loads(request.body)  # Parse JSON request body
-            email = data.get('email')
-            password = data.get('password')
+            data = json.loads(request.body)
+            email = data.get("email")
+            password = data.get("password")
 
-            # Validate input fields
             if not email or not password:
-                return JsonResponse({'bool': False, 'error': 'Email and password are required.'}, status=400)
+                return JsonResponse({"bool": False, "error": "Email and password are required."}, status=400)
 
-            # Check credentials
-            try:
-                teacherData = models.Teacher.objects.get(email=email, password=password)
-                return JsonResponse({'bool': True, 'teacher_id': teacherData.id})
-            except models.Teacher.DoesNotExist:
-                return JsonResponse({'bool': False, 'error': 'Invalid email or password.'}, status=401)
+            teacher = models.Teacher.objects.filter(email=email).first()
+            if teacher:
+                # Direct password comparison (no hashing)
+                if teacher.password == password:
+                    return JsonResponse({"bool": True, "teacher_id": teacher.id})
+                else:
+                    return JsonResponse({"bool": False, "error": "Invalid email or password."}, status=400)
+            else:
+                return JsonResponse({"bool": False, "error": "Teacher not found."}, status=400)
         except json.JSONDecodeError:
-            return JsonResponse({'error': 'Invalid JSON format'}, status=400)
+            return JsonResponse({"error": "Invalid JSON format"}, status=400)
+    return JsonResponse({"error": "Invalid request method."}, status=405)
 
-    return JsonResponse({'error': 'Invalid request method.'}, status=405)
 
+# Category List View
 class CategoryList(generics.ListCreateAPIView):
     queryset = models.CourseCategory.objects.all()
     serializer_class = CategorySerializer
-    permission_classes = [] 
+    permission_classes = []
 
+
+# Course List View
 class CourseList(generics.ListCreateAPIView):
     queryset = models.Course.objects.all()
     serializer_class = CourseSerializer
-    permission_classes = []  
+    permission_classes = []
 
     def get_queryset(self):
         qs = super().get_queryset()
-
         if 'result' in self.request.GET:
             limit = int(self.request.GET['result'])
             qs = qs.order_by('-id')[:limit]
@@ -71,72 +82,117 @@ class CourseList(generics.ListCreateAPIView):
 
         return qs
 
-        
 
+# Course Detail View
 class CourseDetailView(generics.RetrieveAPIView):
     queryset = models.Course.objects.all()
     serializer_class = CourseSerializer
     permission_classes = []
 
+
+# Teacher Course List View
 class TeacherCourseList(generics.ListAPIView):
     serializer_class = CourseSerializer
     permission_classes = []
 
     def get_queryset(self):
-        teacher_id = self.kwargs['teacher_id']
-        teacher = models.Teacher.objects.get(pk=teacher_id)
-        return models.Course.objects.filter(teacher=teacher)
+        teacher_id = self.kwargs["teacher_id"]
+        return models.Course.objects.filter(teacher__id=teacher_id)
 
+
+# Chapter List View
 class TeacherCourseDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = models.Course.objects.all()
     serializer_class = CourseSerializer
     permission_classes = []
 
+# Chapter List View
 class ChapterList(generics.ListCreateAPIView):
     queryset = models.Chapter.objects.all()
     serializer_class = ChapterSerializer
-    permission_classes = []  # Add permissions if needed
+    permission_classes = []
 
+
+# Course Chapter List View
 class CourseChapterList(generics.ListAPIView):
     serializer_class = ChapterSerializer
     permission_classes = []
 
     def get_queryset(self):
-        course_id = self.kwargs['course_id']
-        course = models.Course.objects.get(pk=course_id)
-        return models.Chapter.objects.filter(course=course)
+        course_id = self.kwargs["course_id"]
+        return models.Chapter.objects.filter(course__id=course_id)
 
 class ChapterDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = models.Chapter.objects.all()
     serializer_class = ChapterSerializer
     permission_classes = []
 
-# Completing the StudentList view
+# Student List View
 class StudentList(generics.ListCreateAPIView):
     queryset = models.Student.objects.all()
     serializer_class = StudentSerializer
-    permission_classes = []  # Add permissions if needed
+    permission_classes = []
 
-# Fix indentation here: Make sure it's not inside StudentList class
-@csrf_exempt  # Consider using proper token-based authentication in production
+
+# Student Login
+@csrf_exempt
 def student_login(request):
     if request.method == "POST":
         try:
-            data = json.loads(request.body)  # Parse JSON request body
-            email = data.get('email')
-            password = data.get('password')
+            data = json.loads(request.body)
+            email = data.get("email")
+            password = data.get("password")
 
-            # Validate input fields
             if not email or not password:
-                return JsonResponse({'bool': False, 'error': 'Email and password are required.'}, status=400)
+                return JsonResponse({"bool": False, "error": "Email and password are required."}, status=400)
 
-            # Check credentials
-            try:
-                studentData = models.Student.objects.get(email=email, password=password)
-                return JsonResponse({'bool': True, 'student_id': studentData.id})
-            except models.Student.DoesNotExist:
-                return JsonResponse({'bool': False, 'error': 'Invalid email or password.'}, status=401)
+            student = models.Student.objects.filter(email=email).first()
+            if student:
+                # Direct password comparison (no hashing)
+                if student.password == password:
+                    return JsonResponse({"bool": True, "student_id": student.id})
+                else:
+                    return JsonResponse({"bool": False, "error": "Invalid email or password."}, status=400)
+            else:
+                return JsonResponse({"bool": False, "error": "Student not found."}, status=400)
         except json.JSONDecodeError:
-            return JsonResponse({'error': 'Invalid JSON format'}, status=400)
+            return JsonResponse({"error": "Invalid JSON format"}, status=400)
+    return JsonResponse({"error": "Invalid request method."}, status=405)
 
-    return JsonResponse({'error': 'Invalid request method.'}, status=405)
+
+# Enrollment Status Check
+def fetch_enroll_status(request, student_id, course_id):
+    student = models.Student.objects.filter(id=student_id).first()
+    course = models.Course.objects.filter(id=course_id).first()
+    if student and course:
+        enroll_status = models.StudentCourseEnrollment.objects.filter(course=course, student=student).exists()
+        return JsonResponse({"bool": enroll_status})
+    return JsonResponse({"bool": False})
+
+
+# Student Enrollment View
+class StudentEnrollCourseList(generics.ListCreateAPIView):
+    queryset = models.StudentCourseEnrollment.objects.all()
+    serializer_class = StudentCourseEnrollSerializer
+    permission_classes = []
+
+
+# Teacher Password Change
+@csrf_exempt
+def teacher_change_password(request, teacher_id):
+    if request.method == "POST":
+        try:
+            data = json.loads(request.body)
+            password = data.get("password")
+
+            if not password:
+                return JsonResponse({"bool": False, "error": "Password is required."}, status=400)
+
+            teacher = get_object_or_404(models.Teacher, id=teacher_id)
+            teacher.password = password  # Directly store the password as plain text
+            teacher.save()
+            return JsonResponse({"bool": True})
+        except Exception as e:
+            print(f"Error: {e}")
+            return JsonResponse({"bool": False, "error": "An error occurred while updating the password."}, status=500)
+    return JsonResponse({"error": "Invalid request method."}, status=405)

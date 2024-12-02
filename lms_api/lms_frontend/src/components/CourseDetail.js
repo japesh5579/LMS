@@ -1,11 +1,10 @@
-import { useParams } from "react-router-dom";
+import { useParams, Link } from "react-router-dom";
 import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
 import axios from "axios";
 import Swal from "sweetalert2";
 
-const baseUrl = "http://127.0.0.1:8000/api";
-const siteUrlUrl = "http://127.0.0.1:8000/";
+const baseUrl = process.env.REACT_APP_API_URL || "http://127.0.0.1:8000/api";
+const siteUrlUrl = process.env.REACT_APP_SITE_URL || "http://127.0.0.1:8000/";
 
 function CourseDetail() {
   const [chapterData, setChapterData] = useState([]);
@@ -13,74 +12,106 @@ function CourseDetail() {
   const [teacherData, setTeacherData] = useState({});
   const [relatedCourseData, setRelatedCourseData] = useState([]);
   const [techListData, setTechListData] = useState([]);
-  let { course_id } = useParams();
+  const [userLoginStatus, setUserLoginStatus] = useState(false);
+  const [enrollStatus, setEnrollStatus] = useState(null);
+  const [status, setStatus] = useState("loading"); 
+  const [error, setError] = useState(null);
+
+  const { course_id } = useParams();
+  const studentId = localStorage.getItem("studentId");
 
   useEffect(() => {
     document.title = "Course Details";
 
-    axios
-      .get(`${baseUrl}/course/${course_id}`)
-      .then((res) => {
-        setCourseData(res.data);
-        setChapterData(res.data.course_chapters || []);
-        setTeacherData(res.data.teacher || {});
-        setRelatedCourseData(JSON.parse(res.data.related_videos || "[]"));
-        setTechListData(res.data.tech_list || []);
-      })
-      .catch((error) => {
-        console.error("Error fetching course data:", error);
-      });
-  }, [course_id]);
+    // Fetch data in parallel
+    const fetchCourseData = axios.get(`${baseUrl}/course/${course_id}`);
+    const fetchEnrollStatus = axios.get(`${baseUrl}/fetch-enroll-status/${studentId}/${course_id}`);
 
-  // Enroll in Course
+    Promise.all([fetchCourseData, fetchEnrollStatus])
+      .then(([courseRes, enrollRes]) => {
+        const course = courseRes.data;
+        setCourseData(course);
+        setChapterData(course.course_chapters || []);
+        setTeacherData(course.teacher || {});
+        setRelatedCourseData(JSON.parse(course.related_videos || "[]"));
+        setTechListData(course.tech_list || []);
+        setEnrollStatus(enrollRes.data.status === "enrolled" ? "success" : "not_enrolled");
+        setStatus("success");
+      })
+      .catch((err) => {
+        console.error("Error fetching data:", err);
+        setError("Failed to load course data. Please try again later.");
+        setStatus("error");
+      });
+  }, [course_id, studentId]);
+
+  useEffect(() => {
+    const studentLoginStatus = localStorage.getItem("studentLoginStatus");
+    setUserLoginStatus(studentLoginStatus === "true");
+  }, []);
+
   const enrollCourse = () => {
-    const studentId = localStorage.getItem("studentId");
-    if (!studentId) {
+    if (!userLoginStatus) {
       Swal.fire({
-        icon: "error",
-        title: "Oops...",
-        text: "You need to be logged in to enroll!",
+        position: "top-end",
+        icon: "warning",
+        title: "Please log in to enroll in the course",
+        showConfirmButton: false,
+        timer: 3000,
+        width: "250px",
+        padding: "0.5rem",
       });
       return;
     }
-
-    const _formData = new FormData();
-    _formData.append("course", courseData.id); // Ensure courseData.id exists
-    _formData.append("student", studentId);
-
+  
+    const formData = new FormData();
+    formData.append("course", course_id);
+    formData.append("student", studentId);
+  
     axios
-      .post(`${baseUrl}/enroll/`, _formData)
-      .then(() => {
+      .post(`${baseUrl}/student-enroll-course/`, formData)
+      .then((res) => {
         Swal.fire({
           icon: "success",
-          title: "Enrollment Success!",
-          text: "You have successfully enrolled in the course.",
+          title: "Enrollment Successful!",
+          text: "You are now enrolled in this course.",
+          showConfirmButton: false,
+          timer: 3000,
         });
+        // Save the enrollment status in localStorage
+        localStorage.setItem(`/enrollStatus_${course_id}`, "success");
+        setEnrollStatus("success");
       })
-      .catch((error) => {
-        console.error("Enrollment error:", error);
+      .catch((err) => {
+        console.error("Enrollment failed:", err);
         Swal.fire({
           icon: "error",
           title: "Enrollment Failed",
-          text: "There was an issue with your enrollment.",
+          text: "Please try again later.",
+          showConfirmButton: true,
         });
       });
   };
+
+  if (status === "loading") return <div>Loading...</div>;
+  if (status === "error") return <div className="alert alert-danger">{error}</div>;
+
+  const { title, description, featured_img } = courseData;
 
   return (
     <div className="container mt-3">
       <div className="row">
         <div className="col-4">
           <img
-            src={courseData.featured_img || ""}
+            src={featured_img || ""}
             className="img-thumbnail"
             alt="Course Thumbnail"
           />
         </div>
         <div className="col-8">
-          <h3>{courseData.title || "Course Title"}</h3>
-          <p>{courseData.description || "Course description not available."}</p>
-          <p className="fw-bold">Techs: {courseData.techs || "N/A"}</p>
+          <h3>{title || "Course Title"}</h3>
+          <p>{description || "Course description not available."}</p>
+          {/*<p className="fw-bold">Techs: {techs || "N/A"}</p>*/}
           <p className="fw-bold">
             Course By:{" "}
             <Link to={`/teacher-detail/${teacherData.id || "#"}`}>
@@ -88,37 +119,48 @@ function CourseDetail() {
             </Link>
           </p>
           <p className="fw-bold">
-            Techs:
-            {techListData.map((tech, index) => (
-              <Link
-                key={index}
-                to={`/category/${tech.trim()}`}
-                className="badge badge-pill text-dark bg-warning me-2"
-              >
-                {tech.trim()}
-              </Link>
-            ))}
+            Technologies:{" "}
+            {techListData.length ? (
+              techListData.map((tech, index) => (
+                <Link
+                  key={index}
+                  to={`/category/${tech.trim()}`}
+                  className="badge badge-pill text-dark bg-warning me-2"
+                >
+                  {tech.trim()}
+                </Link>
+              ))
+            ) : (
+              <span className="badge badge-pill text-dark bg-secondary">No technologies listed</span>
+            )}
           </p>
           <p className="fw-bold">Duration: 3 hours 30 minutes</p>
           <p className="fw-bold">Total Enrolled: 456 Students</p>
           <p className="fw-bold">Rating: 4/5</p>
-          <p>
+          {enrollStatus === "success" ? (
+            <span>
+              Already Enrolled
+              </span>
+          ) : userLoginStatus ? (
             <button onClick={enrollCourse} className="btn btn-success">
-              Enroll in this course
+              Enroll in this Course
             </button>
-          </p>
+          ) : (
+            <Link to="/login" className="btn btn-warning">
+              Log in to Enroll
+            </Link>
+          )}
         </div>
       </div>
-
-      {/* Course Chapters */}
-      <div className="card mt-4">
+ {/* Course Chapters / Videos */}
+ <div className="card mt-4">
         <h5 className="card-header">In this Course</h5>
         <ul className="list-group list-group-flush">
           {chapterData.length === 0 ? (
             <li className="list-group-item">No chapters available.</li>
           ) : (
             chapterData.map((chapter, index) => (
-              <li className="list-group-item" key={index}>
+              <li className="list-group-item" key={chapter.id || index}>
                 {chapter.title}
                 <span className="float-end">
                   <span className="me-3">1 hour 30 mins</span>
@@ -166,8 +208,10 @@ function CourseDetail() {
                           </div>
                         ) : chapter.video ? (
                           <video controls width="100%">
+                            <source src={chapter.video} type="video/webm" />
                             <source src={chapter.video} type="video/mp4" />
-                            Sorry, your browser doesn't support embedded videos.
+                            Sorry, your browser doesn't support embedded
+                            videos.
                           </video>
                         ) : (
                           <p>No video available.</p>
@@ -194,30 +238,26 @@ function CourseDetail() {
       {/* Related Courses */}
       <h3 className="pb-1 mb-4 mt-5">Related Courses</h3>
       <div className="row mb-4">
-        {relatedCourseData.length === 0 ? (
-          <p>No related courses available at the moment.</p>
-        ) : (
-          relatedCourseData.map((rcourse, index) => (
-            <div className="col-md-3" key={index}>
-              <div className="card">
-                <Link to={`/detail/${rcourse.pk}`}>
-                  <img
-                    src={`${siteUrlUrl}media/${rcourse.fields.featured_img}`}
-                    className="card-img-top"
-                    alt={rcourse.fields.title}
-                  />
-                </Link>
-                <div className="card-body">
-                  <h5 className="card-title">
-                    <Link to={`/detail/${rcourse.pk}`}>
-                      {rcourse.fields.title}
-                    </Link>
-                  </h5>
-                </div>
+        {relatedCourseData.map((rcourse) => (
+          <div className="col-md-3" key={rcourse.pk}>
+            <div className="card">
+              <Link target="__blank" to={`/detail/${rcourse.pk}`}>
+                <img
+                  src={`${siteUrlUrl}media/${rcourse.fields.featured_img}`}
+                  className="card-img-top"
+                  alt={rcourse.fields.title}
+                />
+              </Link>
+              <div className="card-body">
+                <h5 className="card-title">
+                  <Link target="__blank" to={`/detail/${rcourse.pk}`}>
+                    {rcourse.fields.title}
+                  </Link>
+                </h5>
               </div>
             </div>
-          ))
-        )}
+          </div>
+        ))}
       </div>
     </div>
   );

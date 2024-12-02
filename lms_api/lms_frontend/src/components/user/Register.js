@@ -31,7 +31,6 @@ function Register() {
         if (!StudentData.password) errors.password = 'Password is required';
         if (!StudentData.interests) errors.interests = 'interests is required';
         if (!StudentData.username) errors.username = 'Mobile Number is required';
-        if (!StudentData.interests) errors.interests = 'interests are required';
         return errors;
     };
 
@@ -64,7 +63,6 @@ function Register() {
                     password: '',
                     interests: '',
                     username: '',
-                    interests: '',
                     status: 'success',
                 });
             })
@@ -82,7 +80,7 @@ function Register() {
     });
 
     const studentLoginStatus=localStorage.getItem('studentLoginStatus')
-     if(studentLoginStatus=='true'){
+     if(studentLoginStatus==='true'){
         window.location.href = '/user-dashboard';
      }
 
@@ -195,4 +193,4 @@ function Register() {
     );
 }
 
-export default Register;
+export default Register;
