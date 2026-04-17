@@ -15,14 +15,14 @@ import json
 class TeacherList(generics.ListCreateAPIView):
     queryset = models.Teacher.objects.all()
     serializer_class = TeacherSerializer
-    permission_classes = []
+    permission_classes = [permissions.AllowAny]
 
 
 # Teacher Detail View
 class TeacherDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = models.Teacher.objects.all()
     serializer_class = TeacherSerializer
-    permission_classes = []
+    permission_classes = [permissions.AllowAny]
 
 
 
@@ -55,14 +55,14 @@ def teacher_login(request):
 class CategoryList(generics.ListCreateAPIView):
     queryset = models.CourseCategory.objects.all()
     serializer_class = CategorySerializer
-    permission_classes = []
+    permission_classes = [permissions.AllowAny]
 
 
 # Course List View
 class CourseList(generics.ListCreateAPIView):
     queryset = models.Course.objects.all()
     serializer_class = CourseSerializer
-    permission_classes = []
+    permission_classes = [permissions.AllowAny]
 
     def get_queryset(self):
         qs = super().get_queryset()
@@ -87,13 +87,13 @@ class CourseList(generics.ListCreateAPIView):
 class CourseDetailView(generics.RetrieveAPIView):
     queryset = models.Course.objects.all()
     serializer_class = CourseSerializer
-    permission_classes = []
+    permission_classes = [permissions.AllowAny]
 
 
 # Teacher Course List View
 class TeacherCourseList(generics.ListAPIView):
     serializer_class = CourseSerializer
-    permission_classes = []
+    permission_classes = [permissions.AllowAny]
 
     def get_queryset(self):
         teacher_id = self.kwargs["teacher_id"]
@@ -104,19 +104,19 @@ class TeacherCourseList(generics.ListAPIView):
 class TeacherCourseDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = models.Course.objects.all()
     serializer_class = CourseSerializer
-    permission_classes = []
+    permission_classes = [permissions.AllowAny]
 
 # Chapter List View
 class ChapterList(generics.ListCreateAPIView):
     queryset = models.Chapter.objects.all()
     serializer_class = ChapterSerializer
-    permission_classes = []
+    permission_classes = [permissions.AllowAny]
 
 
 # Course Chapter List View
 class CourseChapterList(generics.ListAPIView):
     serializer_class = ChapterSerializer
-    permission_classes = []
+    permission_classes = [permissions.AllowAny]
 
     def get_queryset(self):
         course_id = self.kwargs["course_id"]
@@ -125,13 +125,13 @@ class CourseChapterList(generics.ListAPIView):
 class ChapterDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = models.Chapter.objects.all()
     serializer_class = ChapterSerializer
-    permission_classes = []
+    permission_classes = [permissions.AllowAny]
 
 # Student List View
 class StudentList(generics.ListCreateAPIView):
     queryset = models.Student.objects.all()
     serializer_class = StudentSerializer
-    permission_classes = []
+    permission_classes = [permissions.AllowAny]
 
 
 # Student Login
